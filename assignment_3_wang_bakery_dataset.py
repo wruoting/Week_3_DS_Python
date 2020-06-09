@@ -32,6 +32,9 @@ def main():
     transactions_group_by_date.reset_index(inplace=True)
     transactions_group_by_date.columns = ['Weekday', 'Transaction_Count']
     transactions_max_by_date = transactions_group_by_date.groupby(['Weekday']).agg(['max'])
+    maximum_baristas = np.ceil(np.divide(transactions_max_by_date, 50))
+    maximum_baristas.reset_index(inplace=True)
+    maximum_baristas.columns = ['Weekday', 'Maximum Baristas']
 
     print('Question 1')
     print('(a) What is the busiest hour in terms of most transactions per hour?')
@@ -77,6 +80,11 @@ def main():
     print(transactions_group_by_date.T)
     print('Find and list all the maximum transactions given a certain day')
     print(transactions_max_by_date.T)
+    print('Divide each maximum by 50 and add the necessary number of baristas to "overfill" possible orders.')
+    print(maximum_baristas.T)
+
+    print('\nQuestion 5')
+    
 
 
 
