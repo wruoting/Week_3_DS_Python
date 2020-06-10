@@ -66,19 +66,73 @@ def trading_strategy(trading_df, weekly_balance=100):
 
     return trading_hist_df
 
+def plot_trading_growth(trading_strategy_payout_df, name='Q_2_Trading_Growth'):
+    '''
+    trading_strategy_payout_df: dataframe of relevant trading returns
+    name: file output name
+    returns: None
+    '''
+    ax = trading_strategy_payout_df.plot(y='Balance', kind='line', title='Trading Strategy WMT')
+    ax.set_xlabel('Week Number')
+    ax.set_ylabel('Balance ($)')
+    plt.savefig(fname=name)
+    plt.close()
+
+def calculate_weeks_decrease_increase(trading_strategy_payout_df):
+    '''
+    trading_strategy_payout_df: dataframe of relevant trading returns
+    returns: tuple of ints with max increase and max decrease
+    '''
+    # Max increase and decrease algorithm
+    max_increase = 0
+    max_decrease = 0
+    index = 0
+    while(index < len(trading_strategy_payout_df.index) - 1):
+        increase = 0
+        decrease = 0
+        trading_week_index = index
+        # Find the next consecutive green set of weeks and trade on them
+        while(trading_strategy_payout_df < len(trading_strategy_payout_df.index) - 1 and
+            float(trading_strategy_payout_df.iloc[trading_week_index][['Balance']].values[0]) > ):
+            trading_week_index += 1
+        while(trading_strategy_payout_df < len(trading_strategy_payout_df.index) - 1 and trading_strategy_payout_df.iloc[trading_week_index][['Classification']].values[0] == 'RED'):
+            trading_week_index += 1
+    return max_increase, max_decrease
+
 def main():
-    # The file name here has been updated based on my BU ID. 09-10 will be used.
-    # Header names: Invoice, StockCode, Description, Quantity, InvoiceDate, Price, Customer ID, Country
     file_name = 'WMT_Labeled_Weeks_Self.csv'
     df = pd.read_csv(file_name, encoding='ISO-8859-1')
     df_trading_weeks = transform_trading_days_to_trading_weeks(df)
-    trading_strategy_payout_df = trading_strategy(df_trading_weeks)
-    print('Trading Strategy Results:')
-    print(trading_strategy_payout_df)
-    print('\nQuestion 1:')
-    print('The mean is ${}'.format(np.round(trading_strategy_payout_df[['Balance']].mean().values[0], 2)))
-    print('The sigma is ${}'.format(np.round(trading_strategy_payout_df[['Balance']].std().values[0], 2)))
+    # Split data into 2018 and 2019
+    trading_weeks_2018 = df_trading_weeks[df_trading_weeks['Year'] == '2018']
+    trading_weeks_2018.reset_index(inplace=True)
+    trading_weeks_2019 = df_trading_weeks[df_trading_weeks['Year'] == '2019']
+    trading_weeks_2019.reset_index(inplace=True)
 
+    trading_strategy_payout_df_2018 = trading_strategy(trading_weeks_2018)
+    trading_strategy_payout_df_2019 = trading_strategy(trading_weeks_2019)
+    print('Trading Strategy Results:')
+    print('For 2018')
+    print(trading_strategy_payout_df_2018)
+    print('For 2019')
+    print(trading_strategy_payout_df_2019)
+
+    print('\n2018 Results:')
+    print('\nQuestion 1:')
+    print('The mean is ${}'.format(np.round(trading_strategy_payout_df_2018[['Balance']].mean().values[0], 2)))
+    print('The sigma is ${}'.format(np.round(trading_strategy_payout_df_2018[['Balance']].std().values[0], 2)))
+    print('\nQuestion 2:')
+    plot_trading_growth(trading_strategy_payout_df_2018, name='Q_2_Trading_Growth_2018')
+    print('Plot Generated Name: Q_2_Trading_Growth_2018')
+    print('\nQuestion 3:')
+    print('The min is ${}'.format(np.round(trading_strategy_payout_df_2018[['Balance']].min().values[0], 2)))
+    print('The max is ${}'.format(np.round(trading_strategy_payout_df_2018[['Balance']].max().values[0], 2)))
+    print('\nQuestion 4:')
+    print('The final value of the account is ${}'.format(np.round(trading_strategy_payout_df_2018[['Balance']].iloc[-1].values[0], 2)))
+    print('\nQuestion 5:')
+    increasing_weeks_2018, decreasing_weeks_2018 = calculate_weeks_decrease_increase(trading_strategy_payout_df_2018)
+    print('Number of monotonically increasing weeks: {}'.format(increasing_weeks_2018))
+    print('Number of monotonically decreasing weeks: {}'.format(decreasing_weeks_2018))
 
 
 
