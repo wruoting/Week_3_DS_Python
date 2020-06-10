@@ -1,8 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import math
-
 
 def main():
     # The file name here has been updated based on my BU ID. 09-10 will be used.
