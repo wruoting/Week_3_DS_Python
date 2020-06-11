@@ -61,8 +61,8 @@ def trading_strategy(trading_df, weekly_balance=100):
                     trading_df.iloc[trading_week_index][['Trading Week']].values[0],
                     weekly_balance_acc])
         index = trading_week_index+1
-    trading_hist_df = pd.DataFrame(trading_history, columns=['Year', 'Trading Week', 'Balance'])
-    trading_hist_df['Balance'] = np.round(trading_hist_df[['Balance']], 2)
+    trading_hist_df = pd.DataFrame(np.array(trading_history), columns=['Year', 'Trading Week', 'Balance'])
+    trading_hist_df['Balance'] = np.round(trading_hist_df[['Balance']].astype(float), 2)
 
     return trading_hist_df
 
@@ -90,13 +90,25 @@ def calculate_weeks_decrease_increase(trading_strategy_payout_df):
     while(index < len(trading_strategy_payout_df.index) - 1):
         increase = 0
         decrease = 0
-        trading_week_index = index
+
         # Find the next consecutive green set of weeks and trade on them
-        while(trading_strategy_payout_df < len(trading_strategy_payout_df.index) - 1 and
-            float(trading_strategy_payout_df.iloc[trading_week_index][['Balance']].values[0]) > ):
-            trading_week_index += 1
-        while(trading_strategy_payout_df < len(trading_strategy_payout_df.index) - 1 and trading_strategy_payout_df.iloc[trading_week_index][['Classification']].values[0] == 'RED'):
-            trading_week_index += 1
+        while(index < len(trading_strategy_payout_df.index) - 1 and
+             np.round(float(trading_strategy_payout_df.iloc[index+1][['Balance']].values[0]), 2) > np.round(float(trading_strategy_payout_df.iloc[index][['Balance']].values[0]), 2)):
+            index += 1
+            increase += 1
+        if max_increase < increase:
+            max_increase = increase
+        # Find the next consecutive set of red weeks
+        while(index < len(trading_strategy_payout_df.index) - 1 and
+            np.round(float(trading_strategy_payout_df.iloc[index+1][['Balance']].values[0]), 2) < np.round(float(trading_strategy_payout_df.iloc[index][['Balance']].values[0]), 2)):
+            index += 1
+            decrease += 1
+        if max_decrease < decrease:
+            max_decrease = decrease
+        # If we have a flat week we reset continue to the next week
+        if(index < len(trading_strategy_payout_df.index) - 1 and
+            np.round(float(trading_strategy_payout_df.iloc[index+1][['Balance']].values[0]), 2) == np.round(float(trading_strategy_payout_df.iloc[index][['Balance']].values[0]), 2)):
+            index += 1
     return max_increase, max_decrease
 
 def main():
@@ -130,9 +142,28 @@ def main():
     print('\nQuestion 4:')
     print('The final value of the account is ${}'.format(np.round(trading_strategy_payout_df_2018[['Balance']].iloc[-1].values[0], 2)))
     print('\nQuestion 5:')
+    print('We are ignoring weeks where we don\'t trade and are flat')
     increasing_weeks_2018, decreasing_weeks_2018 = calculate_weeks_decrease_increase(trading_strategy_payout_df_2018)
-    print('Number of monotonically increasing weeks: {}'.format(increasing_weeks_2018))
-    print('Number of monotonically decreasing weeks: {}'.format(decreasing_weeks_2018))
+    print('Max number of monotonically increasing weeks: {}'.format(increasing_weeks_2018))
+    print('Max number of monotonically decreasing, or flat weeks: {}'.format(decreasing_weeks_2018))
+
+    print('\n2019 Results:')
+    print('\nQuestion 1:')
+    print('The mean is ${}'.format(np.round(trading_strategy_payout_df_2019[['Balance']].mean().values[0], 2)))
+    print('The sigma is ${}'.format(np.round(trading_strategy_payout_df_2019[['Balance']].std().values[0], 2)))
+    print('\nQuestion 2:')
+    plot_trading_growth(trading_strategy_payout_df_2019, name='Q_2_Trading_Growth_2019')
+    print('Plot Generated Name: Q_2_Trading_Growth_2019')
+    print('\nQuestion 3:')
+    print('The min is ${}'.format(np.round(trading_strategy_payout_df_2019[['Balance']].min().values[0], 2)))
+    print('The max is ${}'.format(np.round(trading_strategy_payout_df_2019[['Balance']].max().values[0], 2)))
+    print('\nQuestion 4:')
+    print('The final value of the account is ${}'.format(np.round(trading_strategy_payout_df_2019[['Balance']].iloc[-1].values[0], 2)))
+    print('\nQuestion 5:')
+    print('We are ignoring weeks where we don\'t trade and are flat')
+    increasing_weeks_2019, decreasing_weeks_2019 = calculate_weeks_decrease_increase(trading_strategy_payout_df_2019)
+    print('Max number of monotonically increasing weeks: {}'.format(increasing_weeks_2019))
+    print('Max number of monotonically decreasing, or flat weeks: {}'.format(decreasing_weeks_2019))
 
 
 
