@@ -103,7 +103,7 @@ def relative_error(actual_vector, approximate_vector, name='Relative Error'):
     approximate_counts = create_dist_order(approximate_vector)
     estimation_approx = np.subtract(actual_counts, approximate_counts)
     absolute_estimation = np.abs(estimation_approx)
-    return pd.DataFrame(np.divide(absolute_estimation, actual_counts), columns=[name]).sort_index()
+    return pd.DataFrame(np.array(np.divide(absolute_estimation, actual_counts)), columns=[name]).sort_index()
 
 def rmse(actual_vector, approximate_vector):
     '''
@@ -143,6 +143,7 @@ def main():
     print('the real distribution of 09-10 data.')
     print('\nQuestion 2:')
     print('Actual graph vs Model 1: Q_2_Model_1_Actual_Relative_Error')
+    print('Usually relative error assumes an "actual" dataset, but when comparing Model 1 to Model 2, we can do the converse since we have no "actual" model.')
     plot_and_save_bar_chart_digits(relative_error(df_actual, df_model_1, name='Relative Error Model 1 vs Actual'),
         title='Model 1 vs Actual Graph Relative Error', name='Q_2_Model_1_Actual_Relative_Error', ylabel='Relative Error')
     print('Actual graph vs Model 2: Q_2_Model_2_Actual_Relative_Error')
@@ -231,10 +232,10 @@ def main():
     print('with a greater relative error at digit 9 (since Model 2 assumes the fewest frequency at that digit). The relative error calculations between these two models are consistent with expectations. ')
     print('The relative error for Actual Distribution vs Model 1 has the highest discrepancy between digits 6 to 9. This is due to the relative error model\'s ')
     print('denominator being fewer for the higher digits, which results in a greater relative error. Model 1\'s frequency does not change, but relative error will increase ')
-    print('with a decreased denominator. The relative error for Actual Distribution vs Model 2 show similar results, but the error is more uniform and overall ')
+    print('with a decreased denominator. The relative error for Actual Distribution vs Model 2 show similar results, but the relative error is overall ')
     print('less. The maximum relative error is ~1.75 between Model 2 and Actual Distribution, but ~6 between Model 1 and Actual Distribution. The smaller denominator ')
     print('for higher digits most likely has the same effect between Model 2 and Actual, but this relative error calculation still shows that Benford\'s distribution has less relative error ')
-    print('than uniform distribution. The RMSE calculations for Model 1 and Actual vs Model 2 and Actual indicate this as well, with Model 2 having the lower RMSE.')
+    print('against the Actual data than the uniform distribution. The RMSE calculations for Model 1 and Actual vs Model 2 and Actual indicate this as well, with Model 2 having the lower RMSE.')
     print('Benford\'s distribution was calculated empirically with a distribution, so some smaller datasets do not follow exactly said distribution. Regardless, I believe ')
     print('it is an acceptable model for comparing the three countries in problem 4. The three countries had significantly different frequencies, with Japan having the ')
     print('least transactions and the United Kingdom having the most transactions. Japan however, lacked transactions with digits 8 and 9. The United Arab Emirates lacked transactions ')
