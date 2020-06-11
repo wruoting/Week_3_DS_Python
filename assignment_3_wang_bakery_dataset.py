@@ -142,7 +142,7 @@ def main():
     print('This lists the number of drinks per transaction:')
     print(drinks_by_transactions.T)
     print('This gets me my average number of drinks per transaction by getting the mean of all these transactions')
-    print('${}'.format(np.round(drinks_by_transactions[['Item']].mean().values[0], 2)))
+    print('{}'.format(np.round(drinks_by_transactions[['Item']].mean().values[0], 2)))
 
 
 if __name__ == "__main__":
